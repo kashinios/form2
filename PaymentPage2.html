@@ -19,7 +19,7 @@
   .solidgate-form {
     width: calc(100% - 48px) !important;
     padding: 0 24px;
-    margin-bottom: 29px;
+    margin-bottom: 24px;
   }
 
   .paypal-button {
@@ -27,7 +27,6 @@
     border-radius: 0px;
     visibility: none;
     font-family: 'Poppins', sans-serif !important;
-    margin-bottom: 10px;
   }
 
   iframe button {
@@ -35,10 +34,11 @@
   }
 
   .or-pay-with-card-container {
-    padding: 12px 12px 0px;
+    padding: 0px 12px;
     display: inline-block;
     display: flex;
-    margin-bottom: 12px;
+    margin-top: 24px;
+    margin-bottom: 40px;
   }
 
   .pay-with-card-text {
@@ -49,7 +49,7 @@
     font-size: 13px;
     font-weight: 300;
     line-height: 19.5px;
-
+    margin: 0;
   }
 
   .spacer-gray-line {
@@ -134,7 +134,8 @@
         },
         paypalButtonParams: {
           enabled: true,
-          containerId: "paypal-button"
+          containerId: "paypal-button",
+          shape: "sharp"
         },
         styles: {
           card_brands: {
