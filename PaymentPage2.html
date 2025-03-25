@@ -1,0 +1,262 @@
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
+  iframe {
+    width: 100% !important;
+    border: none;
+    overflow: hidden;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+  }
+
+  .solidgate-form {
+    width: calc(100% - 48px) !important;
+    padding: 0 24px;
+    margin-bottom: 29px;
+  }
+
+  .paypal-button {
+    padding: 0px 12px !important;
+    border-radius: 24px;
+    visibility: none;
+    font-family: 'Poppins', sans-serif !important;
+    margin-bottom: 10px;
+  }
+
+  iframe button {
+    background-color: #000000;
+  }
+
+  .or-pay-with-card-container {
+    padding: 12px 12px 0px;
+    display: inline-block;
+    display: flex;
+    margin-bottom: 12px;
+  }
+
+  .pay-with-card-text {
+    color: #707281;
+    padding: 0px 16px;
+    vertical-align: middle;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 19.5px;
+
+  }
+
+  .spacer-gray-line {
+    background-color: #DADBE8;
+    flex-grow: 1;
+    height: 1px;
+    align-self: center;
+  }
+
+  .custom-submit {
+    color: #16171B;
+    background-color: #F1F3F9;
+    display: inline-flex;
+    width: calc(100% - 48px);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 19.09px;
+    letter-spacing: 0.05em;
+    text-align: center;
+    padding: 14px 0px;
+    border-radius: 24px;
+    text-decoration: none;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    border: 0px;
+    visibility: hidden;
+  }
+
+  .custom-submit-icon {
+    background-image: url("https://cdn.solidgate.com/ui/images/unlocked.svg");
+    filter: brightness(0);
+    width: 13px;
+    height: 16px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: inline-flex;
+    margin-right: 8px;
+  }
+
+  .custom-submit-title {
+    vertical-align: top;
+  }
+</style>
+
+<body>
+  <div id="paypal-button" class="paypal-button"></div>
+  <div class="or-pay-with-card-container">
+    <div class="spacer-gray-line"></div>
+    <p class="pay-with-card-text">Or pay with card</p>
+    <div class="spacer-gray-line"></div>
+  </div>
+  <div id="solid-payment-form-container" class="solidgate-form"></div>
+
+  <button class="custom-submit">
+    <div class="custom-submit-icon"></div>
+    <span class="custom-submit-title">PLACE ORDER</span>
+  </button>
+
+  <script>
+    function onMerchantDataValues({ merchant, signature, paymentIntent }) {
+      const styles = {
+        merchantData: {
+          merchant: merchant,
+          signature: signature,
+          paymentIntent: paymentIntent
+        },
+        formParams: {
+          buttonType: 'default',
+          submitButtonText: 'Place order',
+          isCardHolderVisible: false,
+          hideCvvNumbers: true,
+          headerText: 'Enter your debit or credit card details (from merchant)',
+          titleText: 'Card info (from merchant)',
+          formTypeClass: 'default',
+          googleFontLink: '//fonts.googleapis.com/css2?family=Poppins:ital@1&display=swap',
+          autoFocus: true,
+          allowSubmit: false
+        },
+        paypalButtonParams: {
+          enabled: true,
+          containerId: "paypal-button"
+        },
+        styles: {
+          card_brands: {
+            display: 'none',
+          },
+          form_body: {
+            width: '100%',
+          },
+          card_number: {
+            '.error-text': {
+              display: 'none',
+            },
+            input: {
+              'background-color': '#F9F9F9',
+              'border-color': '#E8E8E8',
+              ':focus': {
+                'border-color': '#000000',
+              },
+              ':focus~.label': {
+                color: '#8777D9',
+              },
+            },
+          },
+          expiry_date: {
+            '.error-text': {
+              display: 'none',
+            },
+            input: {
+              'background-color': '#F9F9F9',
+              'border-color': '#E8E8E8',
+              ':focus': {
+                'border-color': '#000000',
+              },
+              ':focus~.label': {
+                color: '#8777D9',
+              },
+            },
+          },
+          card_cvv: {
+            '.error-text': {
+              display: 'none',
+            },
+            input: {
+              'background-color': '#F9F9F9',
+              'border-color': '#E8E8E8',
+              ':focus': {
+                'border-color': '#000000',
+              },
+              ':focus~.label': {
+                color: '#8777D9',
+              },
+            },
+          },
+          label: {
+            display: 'none',
+          }
+        }
+      };
+      loadFormWith(styles);
+    }
+
+    function loadFormWith(params) {
+      window.webkit.messageHandlers.healthCheck.postMessage({ param1: "Initialize: Started", param2: "Payment Form Script" })
+      try {
+        const data = params
+        const form = PaymentFormSdk.init(data);
+
+        form.on('mounted', e => {
+          const data = e.data
+          window.webkit.messageHandlers.messageMounted.postMessage({ param1: "MountedMessage", param2: data })
+          setSubmitButtonVisible(true);
+        })
+
+        form.on('submit', e => {
+          const data = e.data // SubmitMessage
+          window.webkit.messageHandlers.messageSubmit.postMessage({ param1: "SubmitMessage", param2: data })
+        })
+
+        form.on('success', e => {
+          const data = e.data // SuccessMessage
+          window.webkit.messageHandlers.messageSuccess.postMessage({ param1: "SuccessMessage", param2: data })
+          setSubmitButtonVisible(false);
+        })
+
+        form.on('fail', e => {
+          const data = e.data // FailMessage
+          window.webkit.messageHandlers.messageFail.postMessage({ param1: "FailMessage", param2: data })
+          setSubmitButtonVisible(false);
+        })
+
+        form.on('verify', e => {
+          const data = e.data // VerifyMessage
+          window.webkit.messageHandlers.messageVerify.postMessage({ param1: "VerifyMessage", param2: data })
+        })
+
+        form.on('error', e => {
+          const data = e.data // ErrorMessage
+          window.webkit.messageHandlers.messageError.postMessage({ param1: "ErrorMessage", param2: data })
+          setSubmitButtonVisible(false);
+        })
+
+        window.webkit.messageHandlers.healthCheck.postMessage({ param1: "Initialize: Success", param2: form })
+
+        var element = document.getElementsByClassName("custom-submit")[0];
+        element.onclick = function () {
+          form.submit();
+        };
+
+        function setSubmitButtonVisible(isVisible) {
+          if (isVisible) {
+            document.getElementsByClassName("custom-submit")[0].style.visibility = "visible";
+          } else {
+            document.getElementsByClassName("custom-submit")[0].style.visibility = "hidden";
+          }
+        }
+      } catch (error) {
+        window.webkit.messageHandlers.healthCheck.postMessage({ param1: "Initialize: Error", param2: error })
+      }
+    }
+  </script>
+
+  <script src="https://cdn.solidgate.com/js/solid-form.js"></script>
+</body>
+
+</html>
